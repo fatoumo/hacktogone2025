@@ -4,9 +4,36 @@ Complete guide for deploying the Carbon Scoring API to Snowflake.
 
 ## 🚀 Quick Start - Hello World Deployment
 
-### Option 1: Deploy Demo Version (Recommended First)
+### Option 1: Deploy from GitHub (Recommended)
 
-The demo version ([app_demo.py](app_demo.py)) works without database setup - perfect for testing!
+The easiest way to deploy is directly from your GitHub repository!
+
+1. **Login to Snowflake**
+   - Navigate to your Snowflake account
+   - Go to **Data > Streamlit** section
+
+2. **Create New Streamlit App from GitHub**
+   - Click **+ Streamlit App**
+   - Select **"Create from GitHub repository"**
+   - **Repository URL:** Your GitHub repository URL
+   - **Branch:** `master` (or your main branch)
+   - **Main file path:** `scoring-api/app_demo.py` (for demo) or `scoring-api/app.py` (for full version)
+   - **Name:** `carbon-scoring-api`
+   - **Warehouse:** Select existing or create new (XSMALL is fine)
+
+3. **Deploy**
+   - Click **Create**
+   - Snowflake will automatically pull the code from GitHub
+   - Wait for the app to deploy (usually takes 1-2 minutes)
+
+4. **Test the App**
+   - Click **Run** once deployment is complete
+   - For demo version: Works immediately without database setup!
+   - For full version: Configure secrets and database (see below)
+
+### Option 2: Deploy by Manual Upload
+
+If you prefer manual upload:
 
 1. **Login to Snowflake**
    - Navigate to your Snowflake account
@@ -14,18 +41,17 @@ The demo version ([app_demo.py](app_demo.py)) works without database setup - per
 
 2. **Create New Streamlit App**
    - Click **+ Streamlit App**
-   - Name: `carbon-scoring-demo`
+   - Select **"Create from scratch"**
+   - Name: `carbon-scoring-api`
    - Warehouse: Select existing or create new (XSMALL is fine)
 
-3. **Upload Demo App**
-   - Copy the contents of [app_demo.py](app_demo.py)
+3. **Upload Files**
+   - Copy the contents of files from `scoring-api/` directory
    - Paste into the Snowflake Streamlit editor
-   - Click **Run**
+   - Recreate the directory structure (see below)
 
 4. **Test the App**
-   - You should see "Hello World deployment test for Snowflake Streamlit"
-   - Try the Quick Carbon Score Demo calculator
-   - The app works without any database setup!
+   - Click **Run**
 
 ---
 
@@ -55,36 +81,50 @@ The demo version ([app_demo.py](app_demo.py)) works without database setup - per
 
 ### Step 2: Create Streamlit App
 
+**Recommended: Deploy from GitHub**
+
 1. **Navigate to Streamlit**
    - Go to **Data > Streamlit**
    - Click **+ Streamlit App**
 
-2. **Configure App**
+2. **Create from GitHub Repository**
+   - Select **"Create from GitHub repository"**
+   - **Repository URL:** Your GitHub repository URL (e.g., `https://github.com/yourusername/hacktogone2025`)
+   - **Branch:** `master`
+   - **Main file path:** `scoring-api/app.py`
    - **Name:** `carbon-scoring-api`
-   - **Warehouse:** `COMPUTE_WH` (created by setup.sql)
+   - **Warehouse:** `COMPUTE_WH`
    - **Database:** `CARBON_SCORING_DB`
    - **Schema:** `PUBLIC`
 
-3. **Upload Files**
+3. **Deploy**
+   - Click **Create**
+   - Snowflake will automatically clone your repository
+   - All files and directory structure are preserved automatically
+   - Wait for deployment to complete
 
-   You have two options:
+**Alternative: Manual Upload**
 
-   **Option A: Upload via UI**
-   - Main file: Copy [app.py](app.py) content
-   - Create additional files by clicking **+ Add** for each module:
+If you cannot use GitHub:
+
+1. **Navigate to Streamlit**
+   - Go to **Data > Streamlit**
+   - Click **+ Streamlit App**
+   - Select **"Create from scratch"**
+
+2. **Upload Files**
+   - Copy files from `scoring-api/` directory
+   - Recreate the directory structure manually:
      - `config/app_config.py`
      - `config/snowflake_config.py`
+     - `config/__init__.py`
      - `api/models.py`
      - `api/scoring.py`
+     - `api/__init__.py`
      - `utils/database.py`
      - `utils/helpers.py`
-
-   **Option B: Use Snowflake CLI (if available)**
-   ```bash
-   snow streamlit deploy \
-     --connection myconnection \
-     --name carbon-scoring-api
-   ```
+     - `utils/__init__.py`
+     - `app.py` (main file)
 
 ### Step 3: Configure Secrets
 

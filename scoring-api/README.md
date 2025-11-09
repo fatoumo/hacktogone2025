@@ -34,19 +34,21 @@ scoring-api/
 
 ### 🚀 Snowflake Deployment (Recommended)
 
-**Hello World - 2 Minute Setup:**
+**Hello World - 2 Minute Setup from GitHub:**
 
-1. **Deploy Demo App**
+1. **Deploy from GitHub**
    - Login to Snowflake
    - Go to **Data > Streamlit** > **+ Streamlit App**
-   - Copy [app_demo.py](app_demo.py) content and run
-   - ✅ Works immediately without database setup!
+   - Select **"Create from GitHub repository"**
+   - Enter your repository URL
+   - Set main file: `scoring-api/app_demo.py` (demo) or `scoring-api/app.py` (full)
+   - ✅ Deploys automatically!
 
-2. **Full Deployment**
+2. **Full Deployment with Database**
    - See detailed guide: [DEPLOYMENT.md](DEPLOYMENT.md)
    - Run [setup.sql](setup.sql) in Snowflake
-   - Configure secrets
-   - Deploy [app.py](app.py)
+   - Configure secrets in app settings
+   - Restart the app
 
 ### 💻 Local Development
 
