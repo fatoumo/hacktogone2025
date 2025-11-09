@@ -1,5 +1,9 @@
-import { ChatInterface } from "@/components/chat/ChatInterface";
+import { Hero } from "@/components/Hero";
 
 export default function Home() {
-  return <ChatInterface />;
+  return (
+    <main className="h-screen overflow-hidden">
+      <Hero />
+    </main>
+  );
 }

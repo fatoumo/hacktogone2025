@@ -1,7 +1,7 @@
 .nav {
   width: 100%;
-  background: linear-gradient(135deg, #00C853 0%, #00A344 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -24,13 +24,30 @@
 
 .logo a {
   text-decoration: none;
-  color: white;
+  color: #3a1e14;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoIcon {
+  flex-shrink: 0;
+}
+
+.logoTextContainer {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
 }
 
 .logoText {
   font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.2;
+  font-weight: 400;
+  font-family: var(--font-aveburg), serif;
+  letter-spacing: -0.02em;
 }
 
 .logoSubtext {
@@ -50,32 +67,37 @@
 }
 
 .navLink {
-  color: white;
+  color: #51271a;
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: all 0.2s ease;
-  font-weight: 500;
+  font-weight: 400;
+  font-family: var(--font-abc-stefan), sans-serif;
+  font-size: 1rem;
   position: relative;
 }
 
 .navLink:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  color: #89a56a;
+  background-color: rgba(137, 165, 106, 0.08);
 }
 
 .navLink.active {
-  background-color: rgba(255, 255, 255, 0.2);
-  font-weight: 600;
+  color: #89a56a;
+  background-color: rgba(137, 165, 106, 0.12);
+  font-weight: 400;
 }
 
 .navLink.active::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: 0;
   left: 1rem;
   right: 1rem;
   height: 2px;
-  background-color: white;
+  background-color: #89a56a;
+  border-radius: 2px;
 }
 
 .authPlaceholder {

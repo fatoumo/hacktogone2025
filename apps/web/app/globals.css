@@ -2,25 +2,32 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 0 0% 9%;
+  --foreground: 22 42% 16%; /* #3a1e14 - dark brown */
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
+  --card-foreground: 22 42% 16%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
-  --primary: 142 76% 39%;
+  --popover-foreground: 22 42% 16%;
+  --primary: 90 28% 53%; /* #89a56a - sage green */
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 9%;
+  --secondary: 96 63% 93%; /* #ecf7e2 - light green */
+  --secondary-foreground: 19 47% 22%; /* #51271a - brown text */
+  --muted: 96 63% 93%;
+  --muted-foreground: 19 47% 22%;
+  --accent: 206 83% 78%; /* #9fcaf4 - light blue */
+  --accent-foreground: 22 42% 16%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --border: 0 0% 89%;
   --input: 0 0% 89%;
-  --ring: 142 76% 39%;
+  --ring: 90 28% 53%;
   --radius: 0.5rem;
+
+  /* Custom design colors */
+  --color-sage-green: #89a56a;
+  --color-dark-brown: #3a1e14;
+  --color-brown-text: #51271a;
+  --color-light-green-bg: #ecf7e2;
+  --color-blue-accent: #9fcaf4;
 }
 
 .dark {
@@ -53,12 +60,14 @@ body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: var(--font-abc-stefan), var(--font-geist-sans), sans-serif;
 }
 
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
 }
 
 * {
