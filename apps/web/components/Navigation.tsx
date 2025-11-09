@@ -12,6 +12,7 @@ export default function Navigation() {
     { href: '/carbon-scoring', label: 'Score Calculator' },
     { href: '/carbon-scoring/api-docs', label: 'API Docs' },
     { href: '/carbon-scoring/data', label: 'Data Explorer' },
+    { href: '/agents', label: 'AI Agents' },
   ];
 
   const isActive = (href: string) => {

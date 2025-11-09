@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bun install:*)"
+      "Bash(bun install:*)",
+      "Bash(git log:*)",
+      "Bash(bun run lint)",
+      "Bash(cat:*)",
+      "Bash(bun pm:*)",
+      "Bash(bun search:*)",
+      "Bash(bun add:*)",
+      "Bash(bun run check-types:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
