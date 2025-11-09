@@ -149,106 +149,106 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-w-4xl mx-auto p-4">
+    <div className="flex flex-col h-[calc(100vh-80px)] max-w-3xl w-full mx-auto">
       {/* Messages Area */}
-      <Card className="flex-1 overflow-y-auto mb-4 p-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-center">
-            <div className="space-y-4 text-muted-foreground">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Welcome to Hacktogone 2025 AI Chat
-              </h2>
-              <p>Start a conversation with our AI assistant</p>
-              {isSupported && (
-                <p className="text-sm">
-                  💡 Tip: Use the microphone button to speak your message
-                </p>
-              )}
+      <Card className="flex-1 overflow-y-auto mb-4 space-y-4 mx-4">
+        <div className="p-4">
+          {messages.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-center min-h-[400px]">
+              <div className="space-y-4 text-muted-foreground">
+                <h2 className="text-2xl font-semibold text-foreground">
+                  Comment puis-je vous aider ?
+                </h2>
+                <p>Posez-moi une question sur votre empreinte carbone</p>
+                {isSupported && (
+                  <p className="text-sm">
+                    💡 Astuce : Cliquez sur le micro pour parler
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <>
-            {messages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                role={message.role}
-                content={message.content}
-              />
-            ))}
-            {isLoading && (
-              <div className="flex gap-3 p-4 rounded-lg bg-muted">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-background flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="font-semibold text-sm">AI Assistant</div>
-                  <div className="text-sm text-muted-foreground">
-                    Thinking...
+          ) : (
+            <>
+              {messages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  role={message.role}
+                  content={message.content}
+                />
+              ))}
+              {isLoading && (
+                <div className="flex gap-3 p-4 rounded-lg bg-muted">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-background flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="font-semibold text-sm">Bob</div>
+                    <div className="text-sm text-muted-foreground">
+                      En train de réfléchir...
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </>
-        )}
+              )}
+              <div ref={messagesEndRef} />
+            </>
+          )}
+        </div>
       </Card>
 
       {/* Input Area */}
-      <Card className="p-4">
-        <form onSubmit={onSubmit} className="space-y-2">
-          <div className="relative">
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your message or click the microphone to speak..."
-              className="pr-12 min-h-[80px] max-h-[200px] resize-none"
-              disabled={isLoading}
-            />
-            {interimTranscript && (
-              <div className="absolute top-2 right-14 text-xs text-muted-foreground italic">
-                Listening...
+      <div className="px-4 pb-4">
+        <Card className="p-2">
+          <form onSubmit={onSubmit}>
+            <div className="relative flex items-end gap-2">
+              {isSupported && (
+                <Button
+                  type="button"
+                  variant={isListening ? "destructive" : "outline"}
+                  size="icon"
+                  className="shrink-0"
+                  onClick={handleMicToggle}
+                  disabled={isLoading}
+                >
+                  {isListening ? (
+                    <MicOff className="h-4 w-4" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+              <div className="flex-1 relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Tapez votre message ou utilisez le micro pour parler..."
+                  className="pr-12 min-h-[50px] max-h-[200px] resize-none"
+                  disabled={isLoading}
+                  rows={1}
+                />
+                {interimTranscript && (
+                  <div className="absolute top-2 right-14 text-xs text-muted-foreground italic">
+                    Écoute en cours...
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-
-          <div className="flex gap-2 justify-end">
-            {isSupported && (
               <Button
-                type="button"
-                variant={isListening ? "destructive" : "outline"}
+                type="submit"
                 size="icon"
-                onClick={handleMicToggle}
-                disabled={isLoading}
+                className="shrink-0"
+                disabled={!input.trim() || isLoading}
               >
-                {isListening ? (
-                  <MicOff className="h-4 w-4" />
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Mic className="h-4 w-4" />
+                  <Send className="h-4 w-4" />
                 )}
               </Button>
-            )}
-            <Button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4" />
-                  Send
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
+            </div>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }
