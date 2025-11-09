@@ -1,0 +1,21 @@
+# Carbon Scoring API - Python Dependencies
+
+# Core framework
+streamlit==1.31.0
+
+# Snowflake connectivity
+snowflake-connector-python==3.7.0
+snowflake-snowpark-python==1.11.1
+
+# Data handling
+pandas==2.2.0
+numpy==1.26.3
+
+# Configuration and environment
+python-dotenv==1.0.1
+
+# Logging and monitoring
+loguru==0.7.2
+
+# Utilities
+pytz==2024.1

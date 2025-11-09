@@ -1,0 +1,50 @@
+# Snowflake Native App Configuration
+# Configuration for deploying Carbon Scoring API as a Snowflake Streamlit app
+
+definition_version: 1
+
+streamlit:
+  name: carbon_scoring_api
+  title: "Carbon Scoring API"
+  query_warehouse: COMPUTE_WH
+  main_file: app.py
+
+  # Pages configuration
+  pages:
+    - label: "Score Calculator"
+      file: app.py
+    - label: "Demo"
+      file: app_demo.py
+
+  # Environment configuration
+  env:
+    - name: LOG_LEVEL
+      value: INFO
+
+# Database configuration
+database:
+  name: CARBON_SCORING_DB
+
+schemas:
+  - name: PUBLIC
+
+objects:
+  tables:
+    - name: CARBON_SCORES
+      schema: PUBLIC
+
+warehouses:
+  - name: COMPUTE_WH
+    size: XSMALL
+    auto_suspend: 60
+    auto_resume: true
+
+# Security
+security:
+  oauth: false
+
+# Metadata
+metadata:
+  version: "1.0.0"
+  description: "Carbon footprint scoring API powered by Streamlit and Snowflake"
+  author: "Hacktogone Toulouse 2025"
