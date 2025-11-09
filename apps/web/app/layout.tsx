@@ -33,7 +33,8 @@ const abcStefan = localFont({
 
 export const metadata: Metadata = {
   title: "Hacktogone 2025 | Carbon Scoring Platform",
-  description: "Calculate and track carbon footprint with our advanced scoring platform powered by Snowflake.",
+  description:
+    "Calculate and track carbon footprint with our advanced scoring platform powered by Snowflake.",
 };
 
 export default function RootLayout({
@@ -43,7 +44,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${aveburgGrande.variable} ${roobertTrial.variable} ${abcStefan.variable}`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${aveburgGrande.variable} ${roobertTrial.variable} ${abcStefan.variable}`}
+      >
         <Navigation />
         {children}
       </body>
