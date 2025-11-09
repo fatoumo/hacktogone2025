@@ -1,0 +1,23 @@
+# Vector store
+chromadb==0.4.22
+
+# Embeddings
+sentence-transformers==2.3.1
+
+# Data processing
+pandas==2.1.4
+openpyxl==3.1.2
+
+# API
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# Utils
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
