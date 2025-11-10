@@ -4,8 +4,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "inputs": ["src/**/*.ts", "package.json", "tsconfig.json", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -16,6 +16,26 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "agents:pull": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
+    "agents:push": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "agents-data/**"]
+    },
+    "agents:deploy": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "agents-data/**"]
+    },
+    "agents:sync": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "agents-data/**"]
+    },
+    "agents:status": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", "agents-data/**"]
     }
   }
 }

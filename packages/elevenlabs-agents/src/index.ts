@@ -1,4 +1,7 @@
-export { AgentClient } from "./client";
+// Client
+export { AgentClient } from "./client.js";
+
+// Import/Export utilities (client-safe)
 export {
   exportAgents,
   importAgents,
@@ -6,6 +9,26 @@ export {
   exportAgent,
   createExportBlob,
   parseImportFile,
-} from "./import-export";
-export type { AgentConfig, AgentExport, AgentListItem } from "./types";
-export { AgentConfigSchema, AgentExportSchema, AgentError } from "./types";
+} from "./import-export.js";
+
+// Types and schemas (client-safe)
+export type {
+  AgentConfig,
+  AgentExport,
+  AgentListItem,
+  Account,
+  Deployment,
+  DeploymentResult,
+} from "./types.js";
+export {
+  AgentConfigSchema,
+  AgentExportSchema,
+  AgentError,
+  AccountSchema,
+  DeploymentSchema,
+  DeploymentResultSchema,
+  DeploymentStatus,
+} from "./types.js";
+
+// Note: For server-only exports (AccountManager, DeploymentService, etc.),
+// import from "@repo/elevenlabs-agents/server" instead

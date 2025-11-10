@@ -1,0 +1,15 @@
+# Ignore sensitive data files if they contain API keys or secrets
+# Keep the structure files (accounts.json, deployments.json) in git
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Backup files
+*.backup
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db

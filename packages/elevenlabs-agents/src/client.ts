@@ -11,10 +11,7 @@ export class AgentClient {
 
   constructor(apiKey: string) {
     if (!apiKey) {
-      throw new AgentError(
-        "ElevenLabs API key is required",
-        "MISSING_API_KEY"
-      );
+      throw new AgentError("ElevenLabs API key is required", "MISSING_API_KEY");
     }
     this.client = new ElevenLabsClient({ apiKey });
   }
@@ -53,8 +50,10 @@ export class AgentClient {
         prompt: {
           prompt: (agent.conversation_config?.agent as any)?.prompt?.prompt,
           llm: (agent.conversation_config?.agent as any)?.prompt?.llm,
-          temperature: (agent.conversation_config?.agent as any)?.prompt?.temperature,
-          max_tokens: (agent.conversation_config?.agent as any)?.prompt?.max_tokens,
+          temperature: (agent.conversation_config?.agent as any)?.prompt
+            ?.temperature,
+          max_tokens: (agent.conversation_config?.agent as any)?.prompt
+            ?.max_tokens,
         },
       };
     } catch (error) {

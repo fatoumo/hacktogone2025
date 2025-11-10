@@ -34,11 +34,7 @@ export function importAgents(jsonData: string): AgentConfig[] {
     return validated.agents;
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new AgentError(
-        "Invalid JSON format",
-        "IMPORT_INVALID_JSON",
-        error
-      );
+      throw new AgentError("Invalid JSON format", "IMPORT_INVALID_JSON", error);
     }
     throw new AgentError(
       "Failed to import agents",

@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "mappings": {},
+  "default_voice": "cjVigY5qzO86Huf0OWal",
+  "notes": {
+    "usage": "Map voice IDs between accounts. Format: { 'source_voice_id': 'target_voice_id' }",
+    "default_voice": "Used when source voice doesn't exist in target account"
+  }
+}

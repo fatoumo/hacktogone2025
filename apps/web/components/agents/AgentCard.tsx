@@ -8,17 +8,30 @@ import Link from "next/link";
 
 interface AgentCardProps {
   agent: AgentListItem;
+  accountId: string;
   onRefresh: () => void;
 }
 
-export function AgentCard({ agent, onRefresh }: AgentCardProps) {
+export function AgentCard({ agent, accountId, onRefresh }: AgentCardProps) {
   const handleExport = async () => {
     try {
-      const response = await fetch(`/api/agents/${agent.agent_id}`);
+      const response = await fetch(
+        `/api/agents/${agent.agent_id}?account=${accountId}`
+      );
       if (response.ok) {
         const { agent: agentData } = await response.json();
         const blob = new Blob(
-          [JSON.stringify({ version: "1.0", agents: [agentData], exported_at: new Date().toISOString() }, null, 2)],
+          [
+            JSON.stringify(
+              {
+                version: "1.0",
+                agents: [agentData],
+                exported_at: new Date().toISOString(),
+              },
+              null,
+              2
+            ),
+          ],
           { type: "application/json" }
         );
         const url = window.URL.createObjectURL(blob);
@@ -50,7 +63,10 @@ export function AgentCard({ agent, onRefresh }: AgentCardProps) {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-2">
-          <Link href={`/agents/${agent.agent_id}`} className="w-full">
+          <Link
+            href={`/agents/${agent.agent_id}?account=${accountId}`}
+            className="w-full"
+          >
             <Button className="w-full" variant="default">
               <MessageSquare className="mr-2 h-4 w-4" />
               Chat

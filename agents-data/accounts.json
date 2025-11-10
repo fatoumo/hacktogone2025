@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "accounts": [
+    {
+      "id": "compte1",
+      "name": "Compte 1 - Production",
+      "description": "Production account for live agents",
+      "tier": "Pro",
+      "max_concurrent": 10,
+      "monthly_chars": 500000,
+      "created_at": "2025-01-10T00:00:00Z",
+      "enabled": true,
+      "env_key": "ELEVENLABS_ACCOUNT1_KEY"
+    },
+    {
+      "id": "compte2",
+      "name": "Compte 2 - Development",
+      "description": "Development account for testing",
+      "tier": "Creator",
+      "max_concurrent": 5,
+      "monthly_chars": 100000,
+      "created_at": "2025-01-10T00:00:00Z",
+      "enabled": true,
+      "env_key": "ELEVENLABS_ACCOUNT2_KEY"
+    },
+    {
+      "id": "compte3",
+      "name": "Compte 3 - Staging",
+      "description": "Staging account for pre-production testing",
+      "tier": "Starter",
+      "max_concurrent": 3,
+      "monthly_chars": 30000,
+      "created_at": "2025-01-10T00:00:00Z",
+      "enabled": true,
+      "env_key": "ELEVENLABS_ACCOUNT3_KEY"
+    }
+  ]
+}
