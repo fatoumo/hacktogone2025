@@ -18,7 +18,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from .rag_service import CarbonRAGService, get_rag_service
+from src.rag_service import CarbonRAGService, get_rag_service
 
 # Initialisation FastAPI
 app = FastAPI(
