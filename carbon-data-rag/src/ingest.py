@@ -8,6 +8,18 @@ Usage:
     python ingest.py
 """
 
+import sys
+import io
+import os
+
+# Fix Windows encoding issues
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
+# Disable ChromaDB telemetry before import to avoid errors
+os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+
 import pandas as pd
 import chromadb
 from chromadb.config import Settings
@@ -39,8 +51,11 @@ class DEFRAIngester:
         print(f"📦 Chargement du modèle d'embeddings : {EMBEDDING_MODEL}")
         self.embedding_model = SentenceTransformer(EMBEDDING_MODEL)
         
-        # Initialiser ChromaDB en mode persistent
-        self.chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+        # Initialiser ChromaDB en mode persistent (disable telemetry to avoid errors)
+        self.chroma_client = chromadb.PersistentClient(
+            path=str(CHROMA_DIR),
+            settings=Settings(anonymized_telemetry=False)
+        )
         
         # Créer ou récupérer la collection
         self.collection = self.chroma_client.get_or_create_collection(
@@ -50,127 +65,121 @@ class DEFRAIngester:
         
         print(f"✅ Collection 'carbon_factors' prête ({self.collection.count()} documents)")
     
-    def parse_defra_sheet(self, sheet_name: str, df: pd.DataFrame, category: str) -> List[Dict]:
+    def parse_defra_flat_format(self, df: pd.DataFrame) -> List[Dict]:
         """
-        Parse un onglet DEFRA et extrait les facteurs structurés
-        
+        Parse the flat format DEFRA file and extract structured emission factors
+
+        Args:
+            df: DataFrame from the "Factors by Category" sheet
+
         Returns:
-            Liste de documents avec: text, metadata, id
+            List of documents with: text, metadata, id
         """
         documents = []
-        
-        # Nettoyer les colonnes
-        df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
-        
-        # Identifier la colonne du facteur CO2e (varie selon les onglets)
-        co2e_columns = [col for col in df.columns if 'kg_co2e' in col or 'co2e' in col]
-        if not co2e_columns:
-            print(f"  ⚠️  Pas de colonne CO2e trouvée dans {sheet_name}")
-            return documents
-        
-        main_co2e_col = co2e_columns[0]
-        
-        # Identifier colonnes descriptives
-        desc_columns = [col for col in df.columns if 'level' in col or 'type' in col or 'description' in col]
-        
-        # Itérer sur les lignes
+
+        # Column names: ID, Scope, Level 1, Level 2, Level 3, Level 4, Column Text, UOM, GHG/Unit, GHG Conversion Factor 2024
+
         for idx, row in df.iterrows():
-            factor_value = row.get(main_co2e_col)
-            
-            # Skip si pas de valeur
+            # Get the emission factor value
+            factor_value = row.get('GHG Conversion Factor 2024')
+
+            # Skip if no value or zero
             if pd.isna(factor_value) or factor_value == 0:
                 continue
-            
-            # Construire la description textuelle
+
+            # Extract category and description components
+            level1 = row.get('Level 1', '')
+            level2 = row.get('Level 2', '')
+            level3 = row.get('Level 3', '')
+            level4 = row.get('Level 4', '')
+            column_text = row.get('Column Text', '')
+            ghg_unit = row.get('GHG/Unit', '')
+
+            # Build description from available levels
             desc_parts = []
-            for col in desc_columns:
-                val = row.get(col)
-                if pd.notna(val) and str(val).strip():
-                    desc_parts.append(str(val).strip())
-            
-            description = " - ".join(desc_parts) if desc_parts else f"{category} emission factor"
-            
-            # Identifier l'unité
-            unit_columns = [col for col in df.columns if 'unit' in col]
-            unit = row.get(unit_columns[0]) if unit_columns else "per unit"
+            for part in [level1, level2, level3, level4, column_text]:
+                if pd.notna(part) and str(part).strip():
+                    desc_parts.append(str(part).strip())
+
+            description = " - ".join(desc_parts) if desc_parts else "Emission factor"
+
+            # Get the unit
+            unit = row.get('UOM', 'per unit')
             if pd.isna(unit):
-                unit = "per unit"
-            
-            # Créer le document pour RAG
+                unit = 'per unit'
+
+            # Get scope and category
+            scope = row.get('Scope', '')
+            category = str(level1).lower() if pd.notna(level1) else 'other'
+
+            # Create document text for RAG
             text = f"""
             Category: {category}
+            Scope: {scope}
             Description: {description}
-            Factor: {factor_value} kg CO2e {unit}
+            Factor: {factor_value} kg CO2e per {unit}
+            Type: {ghg_unit if pd.notna(ghg_unit) else 'Total GHG'}
             """
-            
-            # Métadonnées structurées pour filtrage et retour
+
+            # Structured metadata for filtering and retrieval
             metadata = {
                 "category": category,
+                "scope": str(scope),
                 "description": description,
                 "factor": float(factor_value),
                 "unit": str(unit),
+                "ghg_type": str(ghg_unit) if pd.notna(ghg_unit) else "kg CO2e",
                 "source": "DEFRA 2024",
-                "sheet": sheet_name,
-                "raw_data": json.dumps({k: str(v) for k, v in row.to_dict().items() if pd.notna(v)}, ensure_ascii=False)[:500]
+                "level1": str(level1) if pd.notna(level1) else "",
+                "level2": str(level2) if pd.notna(level2) else "",
+                "level3": str(level3) if pd.notna(level3) else "",
             }
-            
-            doc_id = f"{category}_{sheet_name}_{idx}"
-            
+
+            # Create unique ID
+            doc_id = row.get('ID', f'defra_{idx}')
+
             documents.append({
-                "id": doc_id,
+                "id": str(doc_id),
                 "text": text.strip(),
                 "metadata": metadata
             })
-        
+
         return documents
     
     def ingest_defra(self):
-        """Parse complet du fichier DEFRA et ingestion dans ChromaDB"""
-        
+        """Parse the DEFRA file and ingest into ChromaDB"""
+
         if not DEFRA_FILE.exists():
-            print(f"❌ Fichier DEFRA introuvable : {DEFRA_FILE}")
-            print("\n📥 Téléchargez-le depuis :")
+            print(f"❌ DEFRA file not found: {DEFRA_FILE}")
+            print("\n📥 Download it from:")
             print("https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2024")
-            print(f"→ Sauvegardez-le dans : {DEFRA_FILE}")
+            print(f"→ Save it as: {DEFRA_FILE}")
             return False
-        
-        print(f"\n📖 Lecture DEFRA : {DEFRA_FILE}")
-        
-        # Onglets à ingérer avec leurs catégories
-        sheets_config = {
-            'Passenger vehicles': 'transport',
-            'Delivery vehicles': 'transport',
-            'Flights': 'transport',
-            'Rail': 'transport',
-            'Sea': 'transport',
-            'Fuels': 'energy',
-            'Electricity': 'electricity',
-            'Material waste': 'materials',
-            'Water supply': 'water',
-            'Water treatment': 'water'
-        }
-        
-        all_documents = []
-        
-        for sheet_name, category in sheets_config.items():
-            try:
-                print(f"\n  🔄 Traitement : {sheet_name}")
-                df = pd.read_excel(DEFRA_FILE, sheet_name=sheet_name, header=0)
-                
-                docs = self.parse_defra_sheet(sheet_name, df, category)
-                all_documents.extend(docs)
-                
-                print(f"     ✅ {len(docs)} facteurs extraits")
-                
-            except Exception as e:
-                print(f"     ⚠️  Erreur sur {sheet_name}: {e}")
-                continue
-        
-        if not all_documents:
-            print("\n❌ Aucun document extrait !")
+
+        print(f"\n📖 Reading DEFRA file: {DEFRA_FILE}")
+
+        try:
+            # Read the flat format file
+            # The header is on row 6 (0-indexed row 5), so skip the first 5 rows
+            print("  🔄 Processing 'Factors by Category' sheet...")
+            df = pd.read_excel(DEFRA_FILE, sheet_name='Factors by Category', skiprows=5)
+
+            print(f"     ✅ Loaded {len(df)} rows from Excel")
+
+            # Parse all emission factors
+            all_documents = self.parse_defra_flat_format(df)
+
+            if not all_documents:
+                print("\n❌ No documents extracted!")
+                return False
+
+            print(f"\n📊 Total: {len(all_documents)} emission factors extracted")
+
+        except Exception as e:
+            print(f"\n❌ Error reading DEFRA file: {e}")
+            import traceback
+            traceback.print_exc()
             return False
-        
-        print(f"\n📊 Total : {len(all_documents)} facteurs d'émission extraits")
         
         # Vectorisation et ingestion dans ChromaDB
         print(f"\n🔮 Génération des embeddings ({EMBEDDING_MODEL})...")

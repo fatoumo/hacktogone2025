@@ -4,7 +4,12 @@ Service RAG pour facteurs d'émission carbone
 Fournit une interface de recherche sémantique sur les facteurs DEFRA vectorisés.
 """
 
+# Disable ChromaDB telemetry before import to avoid errors
+import os
+os.environ['ANONYMIZED_TELEMETRY'] = 'False'
+
 import chromadb
+from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -33,8 +38,12 @@ class CarbonRAGService:
                 f"ChromaDB non trouvée : {CHROMA_DIR}\n"
                 "Exécutez d'abord : python src/ingest.py"
             )
-        
-        self.chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+
+        # Disable telemetry to avoid errors
+        self.chroma_client = chromadb.PersistentClient(
+            path=str(CHROMA_DIR),
+            settings=Settings(anonymized_telemetry=False)
+        )
         
         try:
             self.collection = self.chroma_client.get_collection("carbon_factors")
@@ -102,14 +111,19 @@ class CarbonRAGService:
             if similarity < min_similarity:
                 continue
             
+            # Convert numpy types to Python native types for JSON serialization
+            factor_value = metadata.get("factor")
+            if hasattr(factor_value, 'item'):  # numpy type
+                factor_value = factor_value.item()
+
             formatted_results.append({
-                "factor": metadata.get("factor"),
-                "unit": metadata.get("unit"),
-                "description": metadata.get("description"),
-                "category": metadata.get("category"),
-                "source": metadata.get("source", "DEFRA 2024"),
+                "factor": float(factor_value) if factor_value is not None else None,
+                "unit": str(metadata.get("unit", "")),
+                "description": str(metadata.get("description", "")),
+                "category": str(metadata.get("category", "")),
+                "source": str(metadata.get("source", "DEFRA 2024")),
                 "similarity_score": round(similarity, 3),
-                "raw_metadata": metadata  # Pour debug/besoin avancés
+                "raw_metadata": {k: (v.item() if hasattr(v, 'item') else v) for k, v in metadata.items()}
             })
         
         # Limiter au top_k demandé après filtrage
@@ -133,8 +147,8 @@ class CarbonRAGService:
             Résultat avec émissions calculées et facteurs utilisés
         """
         
-        # Rechercher les facteurs pertinents
-        factors = self.query(query, top_k=top_k)
+        # Rechercher les facteurs pertinents (lower threshold for calculate)
+        factors = self.query(query, top_k=top_k, min_similarity=0.3)
         
         if not factors:
             return {
