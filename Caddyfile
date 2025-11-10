@@ -1,0 +1,69 @@
+# Caddyfile - Reverse proxy configuration with automatic HTTPS
+#
+# IMPORTANT: Replace the domain names below with your actual domains
+# Configure DNS A records to point to your Hetzner server IP:
+#   rag.yourdomain.com       -> YOUR_SERVER_IP
+#   scoring.yourdomain.com   -> YOUR_SERVER_IP
+#   accueil.yourdomain.com   -> YOUR_SERVER_IP
+#
+# For local testing without domains, use:
+#   :80 instead of domain names (HTTP only, no SSL)
+
+# Carbon Data RAG API
+rag.yourdomain.com {
+    # Automatic HTTPS via Let's Encrypt
+    reverse_proxy carbon-rag:8000
+
+    # Enable logging
+    log {
+        output file /var/log/caddy/rag.log
+    }
+
+    # CORS headers (adjust as needed for production)
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+}
+
+# Scoring API (Streamlit)
+scoring.yourdomain.com {
+    # Automatic HTTPS via Let's Encrypt
+    reverse_proxy scoring-api:8501
+
+    # Enable logging
+    log {
+        output file /var/log/caddy/scoring.log
+    }
+
+    # WebSocket support for Streamlit
+    @websockets {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    reverse_proxy @websockets scoring-api:8501
+}
+
+# Accueil Agent (future FastAPI - uncomment when ready)
+# accueil.yourdomain.com {
+#     # Automatic HTTPS via Let's Encrypt
+#     reverse_proxy accueil-agent:8002
+#
+#     # Enable logging
+#     log {
+#         output file /var/log/caddy/accueil.log
+#     }
+#
+#     # CORS headers
+#     header {
+#         Access-Control-Allow-Origin *
+#         Access-Control-Allow-Methods "GET, POST, OPTIONS"
+#         Access-Control-Allow-Headers "Content-Type, Authorization"
+#     }
+# }
+
+# Optional: Catch-all for the main domain
+# yourdomain.com {
+#     respond "Hacktogone 2025 - Carbon Footprint API" 200
+# }

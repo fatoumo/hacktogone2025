@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # Carbon Data RAG - FastAPI service
+  carbon-rag:
+    build:
+      context: ./carbon-data-rag
+      dockerfile: Dockerfile
+    container_name: carbon-rag
+    restart: unless-stopped
+    environment:
+      - ANONYMIZED_TELEMETRY=False
+    volumes:
+      # Persist ChromaDB data
+      - chromadb-data:/app/data/chroma_db
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Scoring API - Streamlit service (demo version)
+  scoring-api:
+    build:
+      context: ./scoring-api
+      dockerfile: Dockerfile
+    container_name: scoring-api
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ElevenLabs Accueil Agent - CLI (future FastAPI)
+  accueil-agent:
+    build:
+      context: ./eleven_agent_acceuil
+      dockerfile: Dockerfile
+    container_name: accueil-agent
+    restart: unless-stopped
+    environment:
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-}
+    # Uncomment when migrated to FastAPI:
+    # ports:
+    #   - "8002:8002"
+    networks:
+      - app-network
+    # For now, this service just keeps running
+    # You can exec into it: docker exec -it accueil-agent python main.py
+
+  # Caddy - Reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # For HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - app-network
+    depends_on:
+      - carbon-rag
+      - scoring-api
+      # - accueil-agent  # Uncomment when migrated to FastAPI
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  # Persist ChromaDB vector database
+  chromadb-data:
+    driver: local
+  # Persist Caddy data (SSL certificates)
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local

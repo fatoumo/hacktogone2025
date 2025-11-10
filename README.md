@@ -1,91 +1,158 @@
-# Turborepo starter
+# Hacktogone Toulouse 2025
 
-This Turborepo starter is maintained by the Turborepo core team.
+A Turborepo monorepo for carbon footprint tracking and conversational AI agents integration. This project combines Next.js web applications with ElevenLabs voice agents, carbon data RAG (Retrieval-Augmented Generation) module, and Snowflake-based carbon scoring API.
 
-## Using this example
+**Package Manager**: Bun (v1.3.1)
+**Build System**: Turborepo
+**Framework**: Next.js 16 (App Router), React 19
 
-Run the following command:
+## Quick Start
 
-```sh
-npx create-turbo@latest
+```bash
+# Install dependencies
+bun install
+
+# Run all applications (Next.js + Python)
+bun run dev
+
+# Run specific application
+bun run dev --filter=web                    # Web app (port 3000)
+bun run dev --filter=carbon-data-rag        # RAG API (port 8000)
+bun run dev --filter=scoring-api            # Scoring API (port 8501)
+bun run dev --filter=eleven-agent-acceuil   # CLI agent
 ```
 
 ## What's inside?
 
-This Turborepo includes the following packages/apps:
+This Turborepo includes the following applications and packages:
 
-### Apps and Packages
+### Next.js Applications
 
-- `admin`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `admin` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- **`web`**: Main Next.js app with ElevenLabs agents integration, voice chat UI, and carbon scoring features
+- **`admin`**: Admin Next.js app
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Python Applications
 
-### Utilities
+- **`carbon-data-rag`**: FastAPI-based RAG service with ChromaDB for semantic search over DEFRA 2024 emission factors
+- **`scoring-api`**: Streamlit-based carbon footprint calculator for Snowflake deployment
+- **`eleven_agent_acceuil`**: CLI agent for carbon footprint onboarding with ElevenLabs integration
 
-This Turborepo has some additional tools already setup for you:
+### Shared Packages
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- **`@repo/elevenlabs-agents`**: Shared ElevenLabs agent client & utilities (TypeScript)
+- **`@repo/ui`**: React component library (shadcn/ui)
+- **`@repo/eslint-config`**: ESLint configurations
+- **`@repo/typescript-config`**: Shared TypeScript configurations
 
-### Build
+## Development
 
-To build all apps and packages, run the following command:
+### Running All Applications
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+# Start all dev servers (Next.js + Python)
+bun run dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+This will start:
+- **Web app**: http://localhost:3000
+- **Admin app**: http://localhost:3001
+- **Carbon RAG API**: http://localhost:8000
+- **Scoring API**: http://localhost:8501
+- **Accueil Agent**: Interactive CLI
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=admin
+### Running Specific Applications
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=admin
-yarn exec turbo build --filter=admin
-pnpm exec turbo build --filter=admin
-```
+```bash
+# Next.js applications
+bun run dev --filter=web
+bun run dev --filter=admin
 
-### Develop
+# Python applications
+bun run dev --filter=carbon-data-rag        # FastAPI
+bun run dev --filter=scoring-api            # Streamlit
+bun run dev --filter=eleven-agent-acceuil   # CLI
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+# Multiple specific apps
+bun run dev --filter=web --filter=carbon-data-rag
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Building
 
+```bash
+# Build all apps
+bun run build
+
+# Build specific app
+bun run build --filter=web
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+### Code Quality
+
+```bash
+# Lint all workspaces
+bun run lint
+
+# Type check all TypeScript workspaces
+bun run check-types
+
+# Format code
+bun run format
+```
+
+## Python Applications Setup
+
+### Prerequisites
+
+Each Python application requires a virtual environment and dependencies installation:
+
+```bash
+# Carbon Data RAG
+cd carbon-data-rag
+python -m venv .venv
+.venv\Scripts\activate  # Windows (.venv/bin/activate on Unix)
+pip install -r requirements.txt
+python src/ingest.py  # One-time data ingestion (~30 min)
+
+# Scoring API
+cd scoring-api
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+# ElevenLabs Accueil Agent
+cd eleven_agent_acceuil
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Environment Variables
+
+Create `.env` files in each Python module:
+
+**carbon-data-rag/.env**:
+```bash
+# Optional: Add custom configuration
+```
+
+**scoring-api/.env**:
+```bash
+SNOWFLAKE_ACCOUNT=your_account
+SNOWFLAKE_USER=your_user
+SNOWFLAKE_PASSWORD=your_password
+# ... (or use app_demo.py which requires no credentials)
+```
+
+**eleven_agent_acceuil/.env**:
+```bash
+ELEVENLABS_API_KEY=your_elevenlabs_key  # Optional
+```
+
+**apps/web/.env.local**:
+```bash
+ELEVENLABS_API_KEY=your_elevenlabs_key
+HUGGINGFACE_API_KEY=your_hf_key  # Optional
+HUGGINGFACE_WHISPER_ENDPOINT=your_endpoint  # Optional
 ```
 
 ### Remote Caching
@@ -123,13 +190,49 @@ yarn exec turbo link
 pnpm exec turbo link
 ```
 
+## Key Features
+
+### 1. ElevenLabs Voice Agents Integration
+- Dashboard for managing conversational AI agents ([apps/web/app/agents/](apps/web/app/agents/))
+- Real-time voice chat interface using `@elevenlabs/react`
+- Agent configuration import/export with Zod validation
+
+### 2. Carbon Data RAG Module
+- Semantic search over DEFRA 2024 emission factors using ChromaDB
+- FastAPI REST API for natural language queries
+- Vectorized database for intelligent carbon factor matching
+
+### 3. Carbon Scoring API
+- Streamlit-based calculator for energy, transport, and waste metrics
+- Snowflake integration for data persistence
+- Demo and production modes
+
+### 4. CLI Onboarding Agent
+- Interactive questionnaire for carbon footprint assessment
+- Heuristic scoring across 4 categories
+- ClickUp integration for CRM workflow automation
+
+## Project Documentation
+
+- **[CLAUDE.md](CLAUDE.md)**: Comprehensive development guide for Claude Code
+- **[carbon-data-rag/README.md](carbon-data-rag/README.md)**: RAG module documentation
+- **[eleven_agent_acceuil/clickup_integration.md](eleven_agent_acceuil/clickup_integration.md)**: ClickUp integration guide
+
+## Technology Stack
+
+- **Frontend**: Next.js 16, React 19, Tailwind CSS v4, shadcn/ui
+- **Backend**: FastAPI, Streamlit, Next.js API Routes
+- **AI/ML**: ElevenLabs API, OpenAI API, ChromaDB, sentence-transformers
+- **Data**: Snowflake, DEFRA 2024 emission factors
+- **Build**: Turborepo, Bun, TypeScript
+
 ## Useful Links
 
-Learn more about the power of Turborepo:
+Learn more about the technologies used:
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- [Turborepo Documentation](https://turborepo.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [ElevenLabs Conversational AI](https://elevenlabs.io/docs/conversational-ai)
+- [ChromaDB Documentation](https://docs.trychroma.com)
+- [FastAPI Documentation](https://fastapi.tiangolo.com)
+- [Streamlit Documentation](https://docs.streamlit.io)

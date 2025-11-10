@@ -15,12 +15,15 @@ Hacktogone Toulouse 2025 project: A Turborepo monorepo for carbon footprint trac
 ### Root-level commands
 
 ```bash
-# Development (all apps)
+# Development (all apps including Python modules)
 bun run dev
 
 # Development (specific app)
-bun run dev --filter=web     # Port 3000
-bun run dev --filter=admin   # Port 3001
+bun run dev --filter=web                    # Next.js web app - Port 3000
+bun run dev --filter=admin                  # Next.js admin app - Port 3001
+bun run dev --filter=carbon-data-rag        # FastAPI RAG API - Port 8000
+bun run dev --filter=scoring-api            # Streamlit scoring - Port 8501
+bun run dev --filter=eleven-agent-acceuil   # CLI Accueil agent
 
 # Build all apps/packages
 bun run build
@@ -92,6 +95,25 @@ streamlit run app_demo.py
 streamlit run app.py
 ```
 
+### ElevenLabs Accueil Agent (Python CLI)
+
+```bash
+cd eleven_agent_acceuil
+
+# Setup virtual environment
+python -m venv .venv
+.venv\Scripts\activate  # Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run interactive CLI
+python main.py
+
+# Run demo mode (pre-filled answers)
+python main.py --demo
+```
+
 ## Architecture
 
 ### Monorepo Structure
@@ -133,6 +155,12 @@ scoring-api/          # Python Streamlit app (Snowflake deployment)
 ├── app.py                # Main Streamlit application
 ├── api/scoring.py        # Carbon scoring logic
 └── config/               # Snowflake & app configuration
+
+eleven_agent_acceuil/ # Python CLI agent for carbon footprint onboarding
+├── main.py               # CLI interactive questionnaire
+├── utils.py              # Scoring & ElevenLabs integration utilities
+├── config.yaml           # Scoring configuration & API settings
+└── clickup_integration.md # ClickUp integration guide
 ```
 
 ### Technology Stack
@@ -222,6 +250,35 @@ Streamlit-based carbon footprint calculator designed for Snowflake deployment.
 - Demo version (`app_demo.py`) requires no database
 - Full version (`app.py`) requires Snowflake credentials
 
+### 4. ElevenLabs Accueil Agent
+
+**Location**: `eleven_agent_acceuil/`
+
+CLI-based carbon footprint onboarding agent that collects company information and generates indicative carbon scores.
+
+**Features**:
+- Interactive command-line questionnaire (10 questions)
+- Heuristic scoring across 4 categories: digital, transport, energy, purchases
+- ElevenLabs API integration for voice synthesis/text generation
+- ClickUp integration guide for CRM workflow
+- Demo mode with pre-filled answers
+
+**Usage**:
+```bash
+# Interactive mode
+python main.py
+
+# Demo mode
+python main.py --demo
+```
+
+**Environment Variables** (eleven_agent_acceuil/.env):
+```bash
+ELEVENLABS_API_KEY=  # Optional for ElevenLabs integration
+```
+
+**ClickUp Integration**: See [clickup_integration.md](eleven_agent_acceuil/clickup_integration.md) for automating task creation with carbon scores.
+
 ## Important Patterns
 
 ### Working with Turborepo
@@ -265,14 +322,17 @@ Global styles in `apps/web/app/globals.css` with CSS variables for theming.
 
 ### Python Virtual Environments
 
-Both Python modules use virtual environments:
+All three Python modules (`carbon-data-rag`, `scoring-api`, `eleven_agent_acceuil`) use virtual environments:
 ```bash
-# Create once
+# Create once in each Python module directory
 python -m venv .venv
 
-# Activate (run each time)
+# Activate (run each time before running Python commands)
 source .venv/bin/activate  # Unix
 .venv\Scripts\activate     # Windows
+
+# Or use Turborepo to run without manual activation
+bun run dev --filter=<module-name>
 ```
 
 ## Testing
@@ -346,7 +406,8 @@ Check credentials in `scoring-api/.env` or Snowflake app secrets.
 - Web app: port 3000
 - Admin app: port 3001
 - Carbon RAG API: port 8000
-- Streamlit: default port 8501
+- Scoring API (Streamlit): port 8501
+- ElevenLabs Accueil Agent: CLI only (no port)
 
 ## Git Workflow
 
