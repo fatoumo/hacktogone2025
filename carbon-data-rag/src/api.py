@@ -10,8 +10,59 @@ Endpoints:
     GET  /                  - Health check et info
     GET  /stats             - Statistiques de la base
     POST /query             - Recherche sémantique de facteurs
+    """
     POST /calculate         - Recherche + calcul immédiat
     GET  /categories        - Liste des catégories disponibles
+"""
+
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from typing import Optional, List
+from src.rag_service import CarbonRAGService, get_rag_service
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle startup/shutdown events"""
+    # Startup
+    print("\n" + "="*80)
+    print("  🚀 Carbon Data RAG API Starting...")
+    print("="*80)
+    
+    try:
+        # Précharger le service RAG
+        rag = get_rag_service()
+        stats = rag.get_stats()
+        
+        print(f"\n✅ Service RAG chargé :")
+        print(f"   - {stats['total_factors']} facteurs d'émission")
+        print(f"   - {len(stats['categories'])} catégories : {', '.join(stats['categories'])}")
+        print(f"   - Source : {stats['source']}")
+        print(f"   - Embedding : {stats['embedding_model']}")
+        
+        print("\n🌐 API prête sur : http://localhost:8000")
+        print("📖 Documentation : http://localhost:8000/docs")
+        print("="*80 + "\n")
+        
+    except Exception as e:
+        print(f"\n❌ Erreur d'initialisation : {e}")
+        print("\n💡 Avez-vous exécuté l'ingestion ?")
+        print("   $ python src/ingest.py\n")
+        raise
+    
+    yield
+    
+    # Shutdown
+    print("\n👋 Carbon Data RAG API Shutting down...")
+
+# Initialisation FastAPI
+app = FastAPI(
+    title="Carbon Data RAG API",
+    description="Service RAG pour facteurs d'émission carbone (DEFRA 2024)",
+    version="1.0.0",
+    lifespan=lifespan
+)
 """
 
 from fastapi import FastAPI, HTTPException, Depends
@@ -45,7 +96,7 @@ class QueryRequest(BaseModel):
     category_filter: Optional[str] = Field(None, description="Filtrer par catégorie")
     min_similarity: float = Field(0.5, description="Similarité minimale", ge=0.0, le=1.0)
     
-    class Config:
+    model_config = ConfigDict(
         json_schema_extra = {
             "example": {
                 "query": "émissions d'une voiture électrique en France",
@@ -53,7 +104,7 @@ class QueryRequest(BaseModel):
                 "category_filter": "transport",
                 "min_similarity": 0.6
             }
-        }
+        })
 
 class CalculateRequest(BaseModel):
     """Requête de calcul d'émissions"""
@@ -61,14 +112,14 @@ class CalculateRequest(BaseModel):
     value: float = Field(..., description="Quantité (km, kWh, kg...)", gt=0)
     top_k: int = Field(3, description="Facteurs à considérer", ge=1, le=10)
     
-    class Config:
+    model_config = ConfigDict(
         json_schema_extra = {
             "example": {
                 "query": "trajet en voiture électrique",
                 "value": 100,
                 "top_k": 3
             }
-        }
+        })
 
 
 # Endpoints
@@ -164,40 +215,7 @@ def calculate_emissions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Événements de lifecycle
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialisation au démarrage"""
-    print("\n" + "="*80)
-    print("  🚀 Carbon Data RAG API Starting...")
-    print("="*80)
-    
-    try:
-        # Précharger le service RAG
-        rag = get_rag_service()
-        stats = rag.get_stats()
-        
-        print(f"\n✅ Service RAG chargé :")
-        print(f"   - {stats['total_factors']} facteurs d'émission")
-        print(f"   - {len(stats['categories'])} catégories : {', '.join(stats['categories'])}")
-        print(f"   - Source : {stats['source']}")
-        print(f"   - Embedding : {stats['embedding_model']}")
-        
-        print("\n🌐 API prête sur : http://localhost:8000")
-        print("📖 Documentation : http://localhost:8000/docs")
-        print("="*80 + "\n")
-        
-    except Exception as e:
-        print(f"\n❌ Erreur d'initialisation : {e}")
-        print("\n💡 Avez-vous exécuté l'ingestion ?")
-        print("   $ python src/ingest.py\n")
-        raise
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Nettoyage à l'arrêt"""
-    print("\n👋 Carbon Data RAG API Shutting down...")
 
 
 # Point d'entrée pour exécution directe
