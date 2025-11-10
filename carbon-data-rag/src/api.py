@@ -4,21 +4,20 @@ API Carbon Data RAG
 Expose le service RAG de facteurs d'émission carbone pour consommation par des agents.
 
 Usage:
-    fastapi dev api.py
+fastapi dev api.py
     
 Endpoints:
-    GET  /                  - Health check et info
-    GET  /stats             - Statistiques de la base
-    POST /query             - Recherche sémantique de facteurs
-    """
-    POST /calculate         - Recherche + calcul immédiat
-    GET  /categories        - Liste des catégories disponibles
+GET  /                  - Health check et info
+GET  /stats             - Statistiques de la base
+POST /query             - Recherche sémantique de facteurs
+POST /calculate         - Recherche + calcul immédiat
+GET  /categories        - Liste des catégories disponibles
 """
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from src.rag_service import CarbonRAGService, get_rag_service
 
@@ -46,9 +45,11 @@ async def lifespan(app: FastAPI):
         print("="*80 + "\n")
         
     except Exception as e:
-        print(f"\n❌ Erreur d'initialisation : {e}")
-        print("\n💡 Avez-vous exécuté l'ingestion ?")
+        print(f"\n❌ Erreur d''initialisation : {e}")
+        print("\n💡 Avez-vous exécuté l''ingestion ?")
         print("   $ python src/ingest.py\n")
+        print(str(e))
+        print("\n")
         raise
     
     yield
@@ -62,20 +63,6 @@ app = FastAPI(
     description="Service RAG pour facteurs d'émission carbone (DEFRA 2024)",
     version="1.0.0",
     lifespan=lifespan
-)
-"""
-
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from src.rag_service import CarbonRAGService, get_rag_service
-
-# Initialisation FastAPI
-app = FastAPI(
-    title="Carbon Data RAG API",
-    description="Service RAG pour facteurs d'émission carbone (DEFRA 2024)",
-    version="1.0.0"
 )
 
 # CORS pour appels depuis autres modules/agents
@@ -107,8 +94,8 @@ class QueryRequest(BaseModel):
         })
 
 class CalculateRequest(BaseModel):
-    """Requête de calcul d'émissions"""
-    query: str = Field(..., description="Description de l'activité", min_length=3)
+    """Requête de calcul d''émissions"""
+    query: str = Field(..., description="Description de l''activité", min_length=3)
     value: float = Field(..., description="Quantité (km, kWh, kg...)", gt=0)
     top_k: int = Field(3, description="Facteurs à considérer", ge=1, le=10)
     
@@ -192,7 +179,7 @@ def calculate_emissions(
     """
     Recherche de facteur + calcul immédiat des émissions
     
-    Combine la recherche sémantique avec le calcul d'émissions.
+    Combine la recherche sémantique avec le calcul d''émissions.
     Utile pour les agents qui veulent une réponse directe.
     """
     try:
@@ -215,10 +202,7 @@ def calculate_emissions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-
-
-# Point d'entrée pour exécution directe
+# Point d''entrée pour exécution directe
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
