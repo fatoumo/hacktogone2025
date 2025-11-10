@@ -1,0 +1,71 @@
+{
+  "sectors": {
+    "services_numériques": {
+      "display": "Services numériques / bureaux",
+      "key_topics": [
+        "numérique",
+        "energie",
+        "déplacements"
+      ],
+      "indicators": {
+        "pct_reconditionne": {
+          "type": "percent",
+          "good_threshold": 50,
+          "weight": 0.2
+        },
+        "cloud_vs_local": {
+          "type": "categorical",
+          "values": [
+            "cloud",
+            "local",
+            "mix"
+          ],
+          "weight": 0.3
+        },
+        "teletravail": {
+          "type": "categorical",
+          "values": [
+            "majoritaire",
+            "partiel",
+            "non"
+          ],
+          "weight": 0.2
+        }
+      },
+      "recommendations": [
+        "Prioriser matériel reconditionné lors des renouvellements.",
+        "Limiter le stockage local non nécessaire et choisir des hébergeurs sobres."
+      ]
+    },
+    "fabrication_artisanat": {
+      "display": "Fabrication / artisanat",
+      "key_topics": [
+        "matières",
+        "énergie",
+        "déchets",
+        "transport"
+      ],
+      "recommendations": [
+        "Analyser les fournisseurs et favoriser les circuits courts.",
+        "Optimiser la consommation énergétique des machines."
+      ]
+    },
+    "commerce_distribution": {
+      "display": "Commerce / distribution",
+      "key_topics": [
+        "approvisionnement",
+        "emballages",
+        "transport"
+      ],
+      "recommendations": [
+        "Réduire les emballages et favoriser fournisseurs locaux.",
+        "Centraliser les livraisons pour diminuer les trajets."
+      ]
+    }
+  },
+  "scoring_rules": {
+    "numérique": {
+      "desc": "Score numérique basé sur proportion de matériel reconditionné, usage cloud, et pratiques d'hébergement."
+    }
+  }
+}

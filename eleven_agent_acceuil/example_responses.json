@@ -1,0 +1,28 @@
+{
+  "demo_run": {
+    "profile": {
+      "activity": "services numériques",
+      "workplace": "bureaux",
+      "employees": "5",
+      "products": "services",
+      "clients_geo": "nationaux",
+      "vehicles": "non",
+      "machines": "non",
+      "cloud": "cloud",
+      "hosting": "prestataire",
+      "recond": "non"
+    },
+    "scores": {
+      "numerique": 40,
+      "transport": 20,
+      "energie": 30,
+      "achats": 20,
+      "global": 27
+    },
+    "recommendations": [
+      "Prioriser matériel reconditionné lors des renouvellements.",
+      "Évaluer l'empreinte des hébergeurs et migrer vers des offres plus sobres.",
+      "Encourager le télétravail pour réduire les déplacements."
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+
+# config.yaml
+elevenlabs:
+  api_url: "https://api.elevenlabs.io/v1/generate"  # placeholder
+  model: "elevenlabs-small"  # placeholder
+scoring:
+  weights:
+    numerique: 0.25
+    transport: 0.25
+    energie: 0.25
+    achats: 0.25
